@@ -3,6 +3,9 @@ let target;
 let counter = 0;      // Current frame count
 let lifetime = 200;   // How many frames they live
 let popSize = 50;     // Number of creatures
+let gen = 1;           // Generation counter
+let isPaused = false;  // Pause toggle
+let infoDiv;           // For the hover text
 
 function setup() {
     createCanvas(800, 400);
@@ -16,6 +19,11 @@ function setup() {
 function draw() {
     background(30);
     // Show the goal
+    fill(255);
+    textSize(16);
+    text(`Generation: ${gen}`, 20, 30);
+    text(`Time: ${counter} / ${lifetime}`, 20, 50);
+    text(`Status: ${isPaused ? "PAUSED (Space to Resume)" : "RUNNING"}`, 20, 70);
     fill(0, 255, 0);
     ellipse(target.x, target.y, 24, 24);
 
@@ -25,13 +33,44 @@ function draw() {
             population[i].update();
             population[i].show();
         }
+        counter++;let hoveredCreature = null;
+
+        for (let c of population) {
+            c.update();
+            c.show();
+          
+          // Check for hover
+            if (c.isMouseOver()) {
+                hoveredCreature = c;
+            }
+        }
+    
+        // 2. Show Individual Stats on Hover
+        if (hoveredCreature) {
+            drawTooltip(hoveredCreature);
+        }
+    
         counter++;
     } else {
         // WHEN DEAD: Evolve
         let matingPool = evaluate(); // Build the pool of winners
         reproduction(matingPool);    // Create the next generation
-        counter = 0;                 // Reset the clock for Generation X+1
+        counter = 0;
+        gen++; // Increment the generation counter
     }
+}
+
+function drawTooltip(c) {
+    // Draw the tooltip background
+    fill(255, 230);
+    rect(mouseX + 10, mouseY + 10, 150, 60, 5);
+    // Draw the tooltip text
+    fill(0);
+    textSize(12);
+    // Calculate temporary fitness to show progress
+    let d = floor(dist(c.pos.x, c.pos.y, target.x, target.y));
+    text(`Distance: ${d}px`, mouseX + 20, mouseY + 30); // Show the distance to the target
+    text(`Fitness: ${c.fitness.toFixed(4)}`, mouseX + 20, mouseY + 50); // Show the fitness of the creature
 }
 
 function reproduction(matingPool) {
@@ -72,4 +111,13 @@ function evaluate() {
     }
     // Return the mating pool
     return matingPool;
+}
+
+function keyPressed() {
+    if (key === ' ') { // Spacebar
+        isPaused = !isPaused;
+        // Pause or resume the simulation
+        if (isPaused) noLoop();
+        else loop();
+    }
 }

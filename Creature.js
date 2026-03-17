@@ -66,4 +66,9 @@ class Creature {
             this.fitness *= 10;
         }
     }
+
+    isMouseOver() {
+        let d = dist(mouseX, mouseY, this.pos.x, this.pos.y);
+        return d < 15; // Returns true if mouse is within 15 pixels
+    }
 }
