@@ -6,6 +6,7 @@ let popSize = 50;     // Number of creatures
 let gen = 1;           // Generation counter
 let isPaused = false;  // Pause toggle
 let infoDiv;           // For the hover text
+let obstacles = [];
 
 function setup() {
     createCanvas(800, 400);
@@ -24,16 +25,16 @@ function draw() {
     text(`Generation: ${gen}`, 20, 30);
     text(`Time: ${counter} / ${lifetime}`, 20, 50);
     text(`Status: ${isPaused ? "PAUSED (Space to Resume)" : "RUNNING"}`, 20, 70);
+    
     fill(0, 255, 0);
     ellipse(target.x, target.y, 24, 24);
 
+    for (let obs of obstacles){
+        obs.show();
+    }
+
     if (counter < lifetime) {
-        // WHILE ALIVE: Move and draw
-        for (let i = 0; i < population.length; i++) {
-            population[i].update();
-            population[i].show();
-        }
-        counter++;let hoveredCreature = null;
+        let hoveredCreature = null;
 
         for (let c of population) {
             c.update();
@@ -55,6 +56,7 @@ function draw() {
         // WHEN DEAD: Evolve
         let matingPool = evaluate(); // Build the pool of winners
         reproduction(matingPool);    // Create the next generation
+        generateMap();
         counter = 0;
         gen++; // Increment the generation counter
     }
@@ -119,5 +121,19 @@ function keyPressed() {
         // Pause or resume the simulation
         if (isPaused) noLoop();
         else loop();
+    }
+}
+
+function generateMap(){
+    obstacles = [];
+    let obstacleCount = floor(random(1, 10));
+
+    for(let i = 0; i < obstacleCount; i++){
+        let w = random(20,150);
+        let h = random(20,150);
+        // Dont spawn walls on top of the Start or Target
+        let x = random(100, width - 200);
+        let y = random(50, height - 50);
+        obstacles.push(new Obstacle(x,y,w,h));
     }
 }

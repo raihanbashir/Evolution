@@ -14,18 +14,20 @@ class Creature {
     }
 
     update() {
-        // 1. The Brain Logic: Apply the current gene as a force
-        this.applyForce(this.dna.genes[this.geneCounter]);
-        // Increment gene counter
-        this.geneCounter++;
-
-        // 2. Physics Engine: standard Euler integration
-        // Update velocity with acceleration
-        this.vel.add(this.acc);
-        // Update position with velocity
-        this.pos.add(this.vel);
-        // Reset acceleration to 0
-        this.acc.mult(0);
+        if (!this.crashed) {
+            this.applyForce(this.dna.genes[this.geneCounter]);
+            this.geneCounter++;
+            this.vel.add(this.acc);
+            this.pos.add(this.vel);
+            this.acc.mult(0);
+        
+            // Check collisions with all obstacles
+            for (let obs of obstacles) {
+                if (obs.contains(this.pos.x, this.pos.y)) {
+                    this.crashed = true;
+                }
+            }
+        }
     }
   
     show() {
@@ -64,6 +66,10 @@ class Creature {
         // CRITICAL : Bonus for actually hitting the target
         if (d < 10){
             this.fitness *= 10;
+        }
+        // CRITICAL: If they crashed, their fitness is severely reduced
+        if (this.crashed) {
+            this.fitness /= 10;
         }
     }
 
