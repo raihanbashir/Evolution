@@ -68,7 +68,3 @@ npx serve .
 
 - **p5.js** for rendering + simulation
 - Plain JavaScript (no build step)
-
-## License
-
-Add a license file (MIT is a common choice) if you plan to keep this public.
