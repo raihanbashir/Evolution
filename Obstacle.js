@@ -6,9 +6,22 @@ class Obstacle {
     }
   
     show() {
-      fill(150, 50, 50); // Reddish-brown for walls
+      push();
+      // Soft wall with subtle highlight
       noStroke();
-      rect(this.pos.x, this.pos.y, this.w, this.h);
+      fill(60, 74, 110, 235);
+      rect(this.pos.x, this.pos.y, this.w, this.h, 10);
+
+      // Inner highlight edge
+      stroke(255, 255, 255, 40);
+      noFill();
+      rect(this.pos.x + 1, this.pos.y + 1, this.w - 2, this.h - 2, 9);
+
+      // Outer shadow edge
+      stroke(0, 0, 0, 90);
+      noFill();
+      rect(this.pos.x, this.pos.y, this.w, this.h, 10);
+      pop();
     }
   
     contains(px, py) {

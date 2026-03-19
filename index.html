@@ -4,13 +4,60 @@
         <meta charset="UTF-8">
         <title>Evolution</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-        <link rel="stylesheet" type= "text/css" href="style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
-        <script src="dna.js"></script>
-        <script src="creature.js"></script>
-        <script src="obstacle.js"></script>
+        <div class="app">
+            <div class="frame">
+                <div class="hint">Space: pause/resume • Hover: inspect creature</div>
+                <div class="controls" id="controls">
+                    <div class="controls__title">Evolution Controls</div>
 
+                    <div class="controls__row">
+                        <button class="btn" id="btnRestart" type="button">Restart</button>
+                        <button class="btn" id="btnNewMap" type="button">New map</button>
+                    </div>
+
+                    <div class="controls__group">
+                        <label class="controls__label">
+                            Population: <span class="controls__value" id="valPop">120</span>
+                        </label>
+                        <input class="slider" id="popSize" type="range" min="30" max="250" step="10" value="120" />
+
+                        <label class="controls__label">
+                            Lifetime: <span class="controls__value" id="valLife">900</span>
+                        </label>
+                        <input class="slider" id="lifetime" type="range" min="200" max="1500" step="50" value="900" />
+
+                        <label class="controls__label">
+                            Mutation: <span class="controls__value" id="valMut">0.03</span>
+                        </label>
+                        <input class="slider" id="mutation" type="range" min="0.005" max="0.08" step="0.005" value="0.03" />
+                    </div>
+
+                    <div class="controls__group">
+                        <label class="controls__label">Seed</label>
+                        <div class="controls__row">
+                            <input class="textbox" id="seed" type="text" inputmode="numeric" placeholder="e.g. 12345" />
+                            <button class="btn btn--ghost" id="btnApplySeed" type="button">Apply</button>
+                            <button class="btn btn--ghost" id="btnRandomSeed" type="button">Random</button>
+                        </div>
+                    </div>
+
+                    <div class="controls__row">
+                        <button class="btn btn--ghost" id="btnSaveBest" type="button">Save best</button>
+                        <button class="btn btn--ghost" id="btnLoadBest" type="button">Load best</button>
+                    </div>
+
+                    <div class="controls__status" id="statusText"></div>
+                </div>
+            </div>
+        </div>
+
+        <script src="DNA.js"></script>
+        <script src="Creature.js"></script>
+        <script src="Obstacle.js"></script>
         <script src="sketch.js"></script>
     </body>
 </html>
