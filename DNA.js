@@ -1,35 +1,31 @@
 class DNA {
-    constructor(length) {
+    constructor(genes) {
+      if (genes) {
+        this.genes = genes;
+      } else {
         this.genes = [];
-        // Initialize with random values between 0 and 1 using p5.Vector.random2D()
-        for (let i = 0; i < length; i++) {
-            this.genes[i] = p5.Vector.random2D();
-            // Set the magnitude of the gene to 0.2
-            this.genes[i].setMag(0.2);
-        }
+        this.genes[0] = random(0.1, 2.0); // Target Attraction Weight
+        this.genes[1] = random(0.1, 5.0); // Obstacle Avoidance Weight
+        this.genes[2] = random(2, 6); // Speed Preference
+      }
     }
-  
-    // Combine two parents to create a child
+    
+    // Crossover now only swaps 3 values
     crossover(partner) {
-        let childDNA = new DNA(this.genes.length);
-        // Choose a random midpoint to crossover
-        let midpoint = floor(random(this.genes.length));
-        // If the gene is after the midpoint, inherit from the first parent
-        for (let i = 0; i < this.genes.length; i++) {
-            if (i > midpoint) childDNA.genes[i] = this.genes[i];
-            // If the gene is before the midpoint, inherit from the second parent
-            else childDNA.genes[i] = partner.genes[i];
-        }
-        // Return the child DNA
-        return childDNA;
+      let newGenes = [];
+      let mid = floor(random(this.genes.length));
+      for (let i = 0; i < this.genes.length; i++) {
+        newGenes[i] = i > mid ? this.genes[i] : partner.genes[i];
+      }
+      return new DNA(newGenes);
     }
   
-    // Randomly nudge genes to allow for "evolution"
     mutate(rate) {
         for (let i = 0; i < this.genes.length; i++) {
-            // If the random number is less than the mutation rate, mutate the gene
             if (random(1) < rate) {
-                this.genes[i] = random(0, 1);
+                if (i === 0) this.genes[i] = random(0.1, 2.0); // Target
+                if (i === 1) this.genes[i] = random(0.1, 5.0); // Avoid
+                if (i === 2) this.genes[i] = random(2, 6);     // Speed
             }
         }
     }

@@ -1,33 +1,84 @@
 class Creature {
     constructor(dna) {
-        this.dna = dna;
-        this.pos = createVector(width / 2, height - 20); // Start at bottom
-        this.vel = createVector();
-        this.acc = createVector();
-        this.geneCounter = 0; // Which "instruction" are we on?
-        this.fitness = 0;
+      this.dna = dna; // DNA now contains 3 weights: [targetWeight, avoidWeight, maxSpeed]
+      this.pos = createVector(50, height / 2); // Start on the left
+      this.vel = createVector(0, 0);
+      this.acc = createVector(0, 0);
+      
+      this.maxSpeed = 4; //map(this.dna.genes[2], 0, 1, 2, 8);
+      this.maxForce = 1; // How quickly they can turn
+      
+      this.fitness = 0;
+      this.crashed = false;
+      this.completed = false;
     }
-    
-    applyForce(force) {
-        // Add the force to the acceleration
-        this.acc.add(force);
+  
+    // A helper function to steer toward a specific target vector
+    steer(targetVec, weight) {
+      let desired = p5.Vector.sub(targetVec, this.pos);
+      desired.setMag(this.maxSpeed);
+      
+      // Steering = Desired - Velocity
+      let steer = p5.Vector.sub(desired, this.vel);
+      steer.limit(this.maxForce);
+      return steer.mult(weight);
     }
-
+  
     update() {
-        if (!this.crashed) {
-            this.applyForce(this.dna.genes[this.geneCounter]);
-            this.geneCounter++;
-            this.vel.add(this.acc);
-            this.pos.add(this.vel);
-            this.acc.mult(0);
+      if (!this.crashed && !this.completed) {
+        // 1. SEEK THE GOAL (Attraction)
+        let seekForce = this.steer(target, this.dna.genes[0] * 2);
+        // DEBUG: Draw a line showing the attraction force
+        stroke(0, 255, 0, 100);
+        line(this.pos.x, this.pos.y, this.pos.x + seekForce.x * 100, this.pos.y + seekForce.y * 100);
         
-            // Check collisions with all obstacles
-            for (let obs of obstacles) {
-                if (obs.contains(this.pos.x, this.pos.y)) {
-                    this.crashed = true;
-                }
-            }
+        let noise = p5.Vector.random2D().mult(0.1);
+        this.applyForce(noise);
+  
+        // 2. AVOID OBSTACLES (Repulsion)
+        for (let obs of obstacles) {
+          // Calculate center of obstacle
+          let obsCenter = createVector(obs.pos.x + obs.w/2, obs.pos.y + obs.h/2);
+          let d = dist(this.pos.x, this.pos.y, obsCenter.x, obsCenter.y);
+          
+          // If getting close to a wall, apply a "push-away" force
+          if (d < 100) { 
+            let avoidForce = this.steer(this.pos, this.dna.genes[1] * 3); 
+            // Note: Steer toward self = moving away from the source
+            this.applyForce(avoidForce);
+          }
         }
+  
+        // Physics standard
+        this.vel.add(this.acc);
+        this.vel.limit(this.maxSpeed);
+        this.pos.add(this.vel);
+        this.acc.mult(0);
+  
+        // Check for success or crash
+        this.checkStatus();
+      }
+    }
+  
+    checkStatus() {
+      // Check if hit target
+      if (dist(this.pos.x, this.pos.y, target.x, target.y) < 15) {
+        this.completed = true;
+      }
+      // Check if hit obstacle
+      for (let obs of obstacles) {
+        if (obs.contains(this.pos.x, this.pos.y)) {
+          this.crashed = true;
+        }
+      }
+      // Check if out of bounds
+      if (this.pos.x < 0 || this.pos.x > width || this.pos.y < 0 || this.pos.y > height) {
+        this.crashed = true;
+      }
+    }
+  
+    applyForce(f) {
+      this.acc.add(f);
     }
   
     show() {
